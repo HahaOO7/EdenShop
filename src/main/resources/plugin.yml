@@ -1,0 +1,10 @@
+name: EdenShop
+version: '${project.version}'
+main: at.haha007.edenshop.EdenShopPlugin
+api-version: 1.18
+authors: [ Haha007 ]
+depend:
+  - Vault
+commands:
+  shop:
+    permission: edenshop.command
