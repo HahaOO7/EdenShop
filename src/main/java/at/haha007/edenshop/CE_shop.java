@@ -31,24 +31,13 @@ public class CE_shop implements CommandExecutor {
         if (!(sender instanceof Player player))
             return true;
 
-        if (player.getWorld().getName().contains("venture") || player.getWorld().getName().contains("arrock")
-                || player.getWorld().getName().contains("rdougne") || player.getWorld().getName().contains("dgeville")
-                || player.getWorld().getName().contains("anaris")) {
-
-            player.sendMessage(ChatColor.RED + "Das Auktionshaus kann in dieser Welt nicht benutzt werden.");
-            return true;
-        }
-
         if (args.length > 1) {
-
             player.sendMessage(ChatColor.RED + "Du hast den Befehl falsch genutzt. " + ChatColor.YELLOW + "/shop info");
             return true;
         }
 
         if (args.length == 0) {
-
             openInventory(player);
-
             return true;
         }
 
@@ -58,7 +47,6 @@ public class CE_shop implements CommandExecutor {
         }
 
         if (player.getInventory().getItemInMainHand().getAmount() == 0) {
-
             player.sendMessage(ChatColor.RED + "Du hast kein Item in der Hand.");
             return true;
         }
@@ -72,13 +60,19 @@ public class CE_shop implements CommandExecutor {
             return true;
         }
 
+        UUID uuid = player.getUniqueId();
+        long entries = Shop.entries.stream().map(Shop.getInstance()::getOwnerUUID).filter(uuid::equals).count();
+        if(entries > 216){
+            player.sendMessage(ChatColor.RED + "Du kannst maximal 216 Items gleichzeitig im Shop haben.");
+            return true;
+        }
+
         add(player, price);
 
         return true;
     }
 
     static void openInventory(Player p) {
-
         Inventory inv = Bukkit.createInventory(null, 9, MENU_TITLE);
 
         inv.setItem(0, ItemUtils.item(Material.CHEST, 1, ChatColor.GREEN + "Alle Items"));
@@ -91,7 +85,6 @@ public class CE_shop implements CommandExecutor {
         inv.setItem(8, ItemUtils.item(Material.COMPASS, 1, ChatColor.GREEN + "Sonstiges"));
 
         p.openInventory(inv);
-
     }
 
     void info(Player p) {
@@ -125,7 +118,6 @@ public class CE_shop implements CommandExecutor {
     }
 
     void add(Player player, double price) {
-
         ItemStack i = player.getInventory().getItemInMainHand();
         ItemMeta meta = i.getItemMeta();
 

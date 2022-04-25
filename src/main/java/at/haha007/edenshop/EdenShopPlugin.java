@@ -10,6 +10,7 @@ import java.util.Objects;
 public final class EdenShopPlugin extends JavaPlugin {
     private static Economy economy;
     private static EdenShopPlugin plugin;
+    private Thread saveTask;
 
     public static Plugin getPlugin() {
         return plugin;
@@ -21,9 +22,26 @@ public final class EdenShopPlugin extends JavaPlugin {
         Shop.getInstance();
         Objects.requireNonNull(getCommand("shop")).setExecutor(new CE_shop());
         Bukkit.getPluginManager().registerEvents(new ShopListener(), this);
+        saveTask = new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(1000 * 60);
+                } catch (InterruptedException e) {
+                    return;
+                }
+                Shop.getInstance().save();
+            }
+        });
+        saveTask.start();
     }
 
     public void onDisable() {
+        saveTask.interrupt();
+        try {
+            saveTask.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         Shop.getInstance().save();
     }
 
