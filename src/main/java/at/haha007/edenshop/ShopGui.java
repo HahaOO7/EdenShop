@@ -20,7 +20,7 @@ import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
 public class ShopGui {
-    private static enum OwnedState {
+    private enum OwnedState {
         ALL("ALLE", (u, i) -> true), ONLY_OWNED("EIGENE", (u, i) -> i.getOwner().equals(u)), ONLY_NOT_OWNED("FREMDE", (u, i) -> !i.getOwner().equals(u));
         private final String name;
         private final BiPredicate<UUID, ShopItem> predicate;
@@ -125,6 +125,8 @@ public class ShopGui {
             if (!event.isLeftClick()) return;
             onlyOwned = onlyOwned.next();
             updateGui();
+            pages.setPage(0);
+            gui.show(player);
         });
     }
 
