@@ -9,10 +9,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class ItemLoader {
 
@@ -31,13 +28,19 @@ public class ItemLoader {
         List<ShopItem> shopItems = new ArrayList<>();
         for (String key : cfg.getKeys(false)) {
             try {
-                ItemStack stack = cfg.getItemStack(key + ".stack");
+                ItemStack stack = null;
+                if (cfg.contains(key + ".stack"))
+                    stack = cfg.getItemStack(key + ".stack");
+                if (stack == null) {
+                    byte[] bytes = Base64.getDecoder().decode(cfg.getString(key + ".base64stack"));
+                    stack = ItemStack.deserializeBytes(bytes);
+                }
                 String name = cfg.getString(key + ".name");
                 double price = cfg.getDouble(key + ".price");
                 long time = cfg.getLong(key + ".time");
                 UUID uuid = UUID.fromString(Objects.requireNonNull(cfg.getString(key + ".uuid")));
                 if (stack == null || name == null) {
-                    System.err.println("Error while loading item " + key);
+                    EdenShopPlugin.getPlugin().getLogger().severe("Error while loading item " + key);
                     continue;
                 }
                 ShopItem item = new ShopItem(price, uuid, name, time, stack);
@@ -56,6 +59,7 @@ public class ItemLoader {
         for (int i = 0; i < items.size(); i++) {
             ShopItem item = items.get(i);
             cfg.set(i + ".stack", item.getItem());
+            cfg.set(i + ".base64stack", Base64.getEncoder().encodeToString(item.getItem().serializeAsBytes()));
             cfg.set(i + ".name", item.getOwnerName());
             cfg.set(i + ".price", item.getPrice());
             cfg.set(i + ".time", item.getInShopSince());
@@ -68,7 +72,7 @@ public class ItemLoader {
         FileConfiguration cfg = EdenShopPlugin.getPlugin().getConfig();
         List<ShopItem> shopItems = new ArrayList<>();
         List<?> list = cfg.getList("items");
-        if(list == null) throw new IllegalStateException();
+        if (list == null) throw new IllegalStateException();
         for (Object o : list) {
             if (!(o instanceof ItemStack displayStack)) {
                 System.err.println("Error while loading item " + o);

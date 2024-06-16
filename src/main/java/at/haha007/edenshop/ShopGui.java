@@ -77,8 +77,8 @@ public class ShopGui {
             }
             ItemStack displayItem = item.displayItem(player.getUniqueId());
             if (displayItem == null) {
-                System.err.println("displayItem == null");
-                System.err.println("item = " + item);
+                EdenShopPlugin.getPlugin().getLogger().warning("displayItem == null");
+                EdenShopPlugin.getPlugin().getLogger().warning("item = %s".formatted(item));
                 continue;
             }
             GuiItem guiItem = new GuiItem(item.displayItem(player.getUniqueId()), event -> {
@@ -126,7 +126,7 @@ public class ShopGui {
             onlyOwned = onlyOwned.next();
             updateGui();
             pages.setPage(0);
-            gui.show(player);
+            gui.update();
         });
     }
 
@@ -160,7 +160,7 @@ public class ShopGui {
         return new GuiItem(stack, event -> {
             if (pages.getPage() < pages.getPages() - 1) {
                 pages.setPage(pages.getPage() + 1);
-                gui.show(player);
+                gui.update();
             }
         });
     }
@@ -173,7 +173,7 @@ public class ShopGui {
         return new GuiItem(stack, event -> {
             if (pages.getPage() > 0) {
                 pages.setPage(pages.getPage() - 1);
-                gui.show(player);
+                gui.update();
             }
         });
     }
